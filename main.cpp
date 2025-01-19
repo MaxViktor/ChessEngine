@@ -10,32 +10,32 @@
 // black king   6, white king 13
 
 const int asciioffset = 97;
-const char pieces[16] = {' ', 'b', 's', 'l', 't', 'd', 'k', 'x', 'B', 'S', 'L', 'T', 'D', 'K', 'x'};
+const char alphabet[8] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
  
-void setupBoard(uint16_t (&board)[8][8])
+void setupBoard(char (&board)[8][8])
 {
     for (int numeric = 0; numeric < 8; numeric++) {
         for (int alpha = 0; alpha < 8; alpha++) {
-            board[numeric][alpha] = 0;
+            board[numeric][alpha] = ' ';
         }
     }
-    const int blackFirstRow[8] = {4, 2, 3, 5, 6, 3, 2, 4};
-    const int whiteFirstRow[8] = {11, 9, 10, 12, 13, 10, 9, 11};
+    const char blackFirstRow[8] = {'t', 's', 'l', 'd', 'k', 'l', 's', 't'};
+    const char whiteFirstRow[8] = {'T', 'S', 'L', 'D', 'K', 'L', 'S', 'T'};
     for (int numeric = 0; numeric < 8; numeric++) {
         board[numeric][0] = blackFirstRow[numeric];
-        board[numeric][1] = 1;
+        board[numeric][1] = 'b';
         board[numeric][7] = whiteFirstRow[numeric];
-        board[numeric][6] = 8;
+        board[numeric][6] = 'B';
     }
     return;
 }
 
-void renderBoard(uint16_t (&board)[8][8])
+void renderBoard(char (&board)[8][8])
 {
 
     for (int numeric = 0; numeric < 8; numeric++) {
         for (int alpha = 0; alpha < 8; alpha++) {
-            std::cout << '|' << ' ' << pieces[board[alpha][numeric]] << ' ';
+            std::cout << '|' << ' ' << board[alpha][numeric] << ' ';
             if (alpha == 7){
                 std::cout << '|' << '\n';
             }
@@ -45,32 +45,31 @@ void renderBoard(uint16_t (&board)[8][8])
     return;
 }
 
-bool movePiece(uint16_t (&board)[8][8], uint16_t alpha, uint16_t numeric, char piece, char inLetter, char inNumber)
+bool movePiece(char (&board)[8][8], uint16_t alpha, uint16_t numeric, char piece, char inLetter, char inNumber)
 {
-    board[inLetter][inNumber] = board[alpha][numeric];
+    board[inLetter][inNumber] = piece;
     board[alpha][numeric] = ' ';
     return true;
 }
 
-bool turn(uint16_t (&board)[8][8])
+bool turn(char (&board)[8][8])
 {
     char piece = 'x'; // kommer behöva skilja på om det är svart eller inte för att hitta rätt pjäs
     char inLetter = 'x';
     char inNumber = 'x';
     std::cout << "Gotta make your move. Please type it here:" << '\n';
     std::cin >> piece >> inLetter >> inNumber;
-    if (inNumber == 'x')
-    {
-        inNumber = inLetter;
-        inLetter = piece;
-        piece = 'p';
+    int xpos = 0;
+    for (int i = 0; i < 8; i++) {
+        if (inLetter == alphabet[i])
+        {break;}
+        xpos++;
     }
-    inLetter = inLetter - asciioffset;
     bool moveMade = false;
     for (int numeric = 0; numeric < 8; numeric++) {
         for (int alpha = 0; alpha < 8; alpha++) {
-            if (pieces[board[alpha][numeric]] == piece) {
-                moveMade = movePiece(board, alpha, numeric, piece, inLetter, inNumber);
+            if (board[alpha][numeric] == piece) {
+                moveMade = movePiece(board, alpha, numeric, piece, 7 - xpos, inNumber - '0');
             }
             if (moveMade) {return false;}
         }
@@ -81,7 +80,7 @@ bool turn(uint16_t (&board)[8][8])
 int main()
 {
     std::cout << "Let's play chess." << '\n';
-    uint16_t board[8][8];
+    char board[8][8];
     setupBoard(board);
     renderBoard(board);
     bool gameOver = false;
